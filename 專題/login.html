@@ -78,7 +78,7 @@
     </form>
   </div>
 
- <script>
+<script>
     document.getElementById('loginForm').addEventListener('submit', function(event) {
       event.preventDefault(); // 阻止表單的預設提交行為
 
@@ -86,26 +86,19 @@
       var username = document.getElementById('username').value;
       var password = document.getElementById('password').value;
 
-      // 發送 POST 請求到 Google Apps Script API
-      fetch('https://script.google.com/macros/s/AKfycbzeRuAeeBdEr_gPZaLOTWemw9TQTrBJe_RI55BNWr0/dev', {
-        method: 'POST',
-        body: new URLSearchParams({
-          'username': username,
-          'password': password
-        })
-      })
-      .then(response => response.text())
-      .then(result => {
-        if (result === '登入成功') {
-          alert('🎉 登入成功！');
-        } else {
-          alert('❗️ 錯誤的帳號或密碼');
-        }
-      })
-      .catch(error => {
-        console.error('錯誤:', error);
-      });
+      // 呼叫 Google Apps Script 函數進行身份驗證
+      google.script.run.withSuccessHandler(loginSuccess).loginUser(username, password);
     });
+
+    function loginSuccess(result) {
+      if (result) {
+        // 顯示成功訊息
+        alert('🎉登入成功！');
+      } else {
+        // 顯示錯誤訊息
+        alert('❗️錯誤的帳號或密碼');
+      }
+    }
   </script>
 </body>
 </html>
