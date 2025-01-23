@@ -1,104 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>登入系統</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
-
-    .container {
-      background-color: #ffffff;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 300px;
-      border: 1px solid #ddd;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>登入</title>
 </head>
 <body>
-  <div class="container">
-    <h1>登入系統</h1>
-    <form id="loginForm">
-      <label for="username">使用者名稱</label>
-      <input type="text" id="username" name="username" placeholder="輸入使用者名稱" required>
-
-      <label for="password">密碼</label>
-      <input type="password" id="password" name="password" placeholder="輸入密碼" required>
-
-      <button type="submit">登入</button>
-    </form>
-  </div>
-
-<script>
-    document.getElementById('loginForm').addEventListener('submit', function(event) {
-      event.preventDefault(); // 阻止表單的預設提交行為
-
-      // 獲取表單值
-      var username = document.getElementById('username').value;
-      var password = document.getElementById('password').value;
-
-      // 呼叫 Google Apps Script 函數進行身份驗證
-      google.script.run.withSuccessHandler(loginSuccess).loginUser(username, password);
-    });
-
-    function loginSuccess(result) {
-      if (result) {
-        // 顯示成功訊息
-        alert('🎉登入成功！');
-      } else {
-        // 顯示錯誤訊息
-        alert('❗️錯誤的帳號或密碼');
-      }
-    }
-  </script>
+  <iframe style="width:100%; height:540px;;" src="https://script.google.com/macros/s/AKfycbyA7Eb6_SmHtGKfgwefXODDHqT2B3rYN0ukbyMVFG1K1gcodcALGEtQaOYJ2w6CK2Fg/exec" frameborder="0" allowfullscreen></iframe>
 </body>
 </html>
