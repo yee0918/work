@@ -52,6 +52,30 @@
             border-radius: 5px;
             background-color: #f9f9f9;
         }
+        .right-section a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .right-section a:hover {
+            text-decoration: underline;
+            color: #007BFF;
+        }
+
+        .right-section ul {
+            padding-left: 0;
+        }
+        .right-section li {
+            list-style: none;
+            position: relative;
+            padding-left: 1.5em;
+        }
+        .right-section li::before {
+            content: "🌟";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
         .box {
             border: 1px solid #ccc;
             padding: 15px;
@@ -76,7 +100,6 @@
         <a href="./login.html">
           <button>Log In</button>  
         </a>
-        
     </div>
     <div class="container">
         <div class="left-section">
@@ -100,7 +123,7 @@
         <div class="right-section">
             <h3>系學會資訊</h3>
             <ul>
-                <li>會長/副會長</li>
+                <li><a href="正副會長.html">會長/副會長</a></li>
                 <li>地點(辦公室)</li>
                 <li>聯絡方式</li>
             </ul>
