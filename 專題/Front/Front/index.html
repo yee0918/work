@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系烤活動資訊</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+  
+<body>
+    <header>
+        <h1>112學年度系遊活動</h1>
+    </header>
+  
+  <!-- 這裡是海報 -->
+  <section class="poster">
+      <img src="hangoutPost.png" alt="系遊海報" class="poster-img">
+  </section>
+
+  
+    <section class="event-details">
+        <h2>活動資訊</h2>
+        <p>📢 又到了一年一度系上集體出遊的日子啦～٩(๑^o^๑)۶ <p>
+           <p>度過艱苦的疫情，終於可以再次和大家一起出遊了🥳 <p>
+           <p>但因為是重新開始希望能從半日遊再慢慢回歸到宿營，所以只能和期待今年宿營的大家說聲抱歉了 (′д｀ )…彡…彡</p>
+        <p><strong>📅 日期：</strong>113.10.6</p>
+        <p><strong>⏰ 時間：</strong> 13:30 ~ 19:00</p>
+        <p><strong>📍 地點：</strong> 亞太漆彈主題樂園</p>
+        <p><strong>💰 費用：</strong></p>
+        <ul>
+            <li>已繳系學會會費者：<span class="price">600 元</span></li>
+            <li>未繳系學會會費者：<span class="price">650 元</span></li>
+        </ul>
+    </section>
+
+   
+    <section class="signup">
+        <h2>📌 立即報名！</h2>
+        <p>請點擊下方連結填寫報名表：</p>
+        <a href="https://forms.gle/m779EzKFPg7Y8W7i7" class="signup-btn" target="_blank">🔗 填寫報名表</a>
+    </section>
+
+</body>
+    <aside>
+        <h2>其他活動</h2>
+        <ul id="upcoming-events"></ul>
+    </aside>
+
+    <script>
+    async function loadUpcomingEvents() {
+        let res = await fetch("http://localhost:3000/events");
+        let events = await res.json();
+        let now = new Date();
+
+        let upcomingEvents = events.filter(e => new Date(e.date) > now);
+        document.getElementById("upcoming-events").innerHTML = upcomingEvents
+            .map(e => `<li><a href="event.html?id=${e.id}">${e.title} (${e.date})</a></li>`)
+            .join("");
+    }
+
+    loadUpcomingEvents();
+    </script>
+
+</html>
