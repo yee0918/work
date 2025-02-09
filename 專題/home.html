@@ -45,6 +45,29 @@
             flex-direction: column;
             gap: 20px;
         }
+        .left-section a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .left-section a:hover {
+            text-decoration: underline;
+            color: #007BFF;
+        }
+
+        .left-section ul {
+            padding-left: 0;
+        }
+        .left-section li {
+            list-style: none;
+            position: relative;
+            padding-left: 1.5em;
+        }
+        .left-section li::before {
+            content: "📣";
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
         .right-section {
             flex: 1;
             border: 1px solid #ccc;
@@ -106,7 +129,7 @@
             <div class="box">
                 <h3>本學期活動</h3>
                 <ul>
-                    <li>活動 1</li>
+                    <li><a href="Front/Front/index.html">系遊活動</a></li>
                     <li>活動 2</li>
                     <li>活動 3</li>
                 </ul>
