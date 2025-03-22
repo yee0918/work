@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首頁</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f4f4;
+            padding: 10px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+        }
+        .left-section {
+            flex: 2;
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .right-section {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .box {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h3 {
+            margin-top: 0;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .add-btn, .edit-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-btn:hover, .edit-btn:hover {
+            background-color: #0056b3;  /* 在 hover 時改變背景顏色 */
+        }
+
+        a {
+            text-decoration: none; /* 去除超鏈接的下劃線 */
+            color: #000000; /* 設定預設顏色 */
+        }
+
+        a:hover {
+            color: #0000FF; /* 設定當滑鼠懸停時的顏色 */
+        }
+
+        .add-btn, .edit-btn {
+            display: inline-block; /* 保證按鈕在同一行顯示 */
+            margin-right: 10px; /* 按鈕之間的間距 */
+            border: none; /* 確保沒有邊框 */
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>首頁</h1>
+    </div>
+    <div class="container">
+        <div class="left-section">
+            <div class="box">
+                <h3>本學期活動</h3>
+                <ul id="current-activities">
+                    <!-- 這裡的活動會從資料庫自動更新 -->
+                </ul>
+                <a href="./活動管理.html?action=add">
+                    <button class="add-btn">新增</button>
+                </a>
+                <button class="edit-btn" onclick="window.location.href='./活動管理.html?action=edit'">修改</button>
+            </div>
+            <div class="box">
+                <h3>往年活動</h3>
+                <ul id="past-activities">
+                    <li><a href="./past_activities_index.html">111學年</a></li>
+                    <li>110學年</li>
+                    <li>109學年</li>
+                </ul>
+                <button class="add-btn" onclick="addPastActivity()">新增</button>
+            </div>
+        </div>
+        <div class="right-section">
+            <h3>系學會資訊</h3>
+            <ul>
+                <li><a href="正副會長.html">會長/副會長</a></li>
+                <li>地點(辦公室)</li>
+                <li>聯絡方式</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function loadActivities() {
+            fetch("home.php")
+                .then(response => response.json())
+                .then(data => {
+                    let activitiesList = document.getElementById("current-activities");
+                    activitiesList.innerHTML = "";  // 清空現有的活動列表
+                    data.forEach(activity => {
+                        let li = document.createElement("li");
+                        li.innerHTML = activity;  // 將 HTML 插入到列表項中
+                        activitiesList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error("載入活動失敗:", error));
+        }
+
+        document.addEventListener("DOMContentLoaded", loadActivities);
+        setInterval(loadActivities, 10000);
+
+        function addPastActivity() {
+            let activitiesList = document.getElementById("past-activities");
+            let newActivity = prompt("請輸入新活動名稱");
+
+            if (newActivity && newActivity.trim() !== "") {
+                let newItem = document.createElement("li");
+                newItem.innerText = newActivity.trim();
+                activitiesList.appendChild(newItem);
+            }
+        }
+    </script>
+</body>
+</html>
