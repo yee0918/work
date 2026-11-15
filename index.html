@@ -250,9 +250,14 @@ function calculate(){
   // 賣出
   const sellPrice=val('sellPrice');
   const sellInput=$('sellShares').value.trim();
-
-  let sellShares=sellInput===''?shares:Math.floor(val('sellShares'));
-  sellShares=Math.min(sellShares,shares);
+  
+  let sellShares;
+  if(sellInput === ''){
+    sellShares = shares;
+    $('sellShares').value = shares;
+  } else {
+    sellShares = Math.min(Math.floor(val('sellShares')), shares);
+  }
 
   const sellAmount=sellPrice*sellShares;
   const sellFee=Math.round(sellAmount*feeRate*discount);
