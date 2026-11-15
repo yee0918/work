@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<title>台股計算小幫手</title>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#182230;--muted:#687586;--line:#e5e9ef;--accent:#2457d6;--green:#13845b;--red:#c04444}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Segoe UI",sans-serif}
+header{background:#101827;color:white;padding:22px 18px 18px}header h1{font-size:21px;margin:0 0 5px}header p{font-size:13px;color:#bdc8d8;margin:0}
+main{max-width:760px;margin:auto;padding:14px 12px 34px}
+nav{display:flex;gap:7px;overflow-x:auto;padding:2px 0 12px;scrollbar-width:none}nav button{white-space:nowrap;border:1px solid var(--line);background:white;color:#445064;border-radius:999px;padding:10px 14px;font-size:13px}
+nav button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #17243a08}
+h2{font-size:17px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;border:1px solid #d9e0e9;border-radius:10px;padding:12px;font-size:16px;background:#fff;color:var(--ink);min-width:0}input:focus,select:focus,textarea:focus{outline:2px solid #b9caff;border-color:var(--accent)}
+small.hint{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:10px}
+.actions{display:flex;gap:8px;margin-top:14px}.primary,.secondary{border:0;border-radius:11px;padding:12px 15px;font-size:14px;font-weight:650}.primary{background:var(--accent);color:#fff;flex:1}.secondary{background:#eef2f8;color:#344054}
+.result{background:#f5f8ff;border:1px solid #dce6ff;border-radius:13px;padding:14px;margin-top:13px}.result .big{font-size:25px;font-weight:750;letter-spacing:-.5px}.positive{color:var(--green)}.negative{color:var(--red)}.rows{display:grid;grid-template-columns:1fr auto;gap:9px;font-size:13px;margin-top:10px}.rows span:nth-child(odd){color:var(--muted)}.rows span:nth-child(even){font-variant-numeric:tabular-nums;text-align:right}
+hr{border:0;border-top:1px solid var(--line);margin:14px 0}.lot{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;margin:8px 0}.lot button{border:0;background:#fff0f0;color:var(--red);border-radius:9px;padding:0 10px}
+footer{font-size:11px;color:var(--muted);line-height:1.6;padding:6px 4px 20px}
+@media(max-width:390px){.grid{gap:9px}.card{padding:13px}.lot{grid-template-columns:1fr 1fr auto}input,select{padding:11px 9px}}
+</style>
+</head>
+<body>
+<header><h1>台股計算小幫手</h1><p>買賣損益・成本・股利・停利停損，一頁完成</p></header>
+<main>
+<nav id="tabs">
+<button class="active" data-tab="trade">買賣損益</button><button data-tab="average">平均成本</button><button data-tab="dividend">股利計算</button><button data-tab="target">停利停損</button><button data-tab="settings">費率設定</button>
+</nav>
+
+<section class="panel active" id="trade">
+<div class="card"><h2>買賣損益試算</h2>
+<div class="grid">
+<div class="field"><label>買進價格（元）</label><input id="buyPrice" type="number" min="0" step="0.01" value="100"></div>
+<div class="field"><label>賣出價格（元）</label><input id="sellPrice" type="number" min="0" step="0.01" value="110"></div>
+<div class="field"><label>股數（股）</label><input id="shares" type="number" min="1" step="1" value="1000"></div>
+<div class="field"><label>交易類型</label><select id="tradeType"><option value="stock">一般股票</option><option value="day">現股當沖（股票）</option><option value="etf">ETF</option></select></div>
+</div>
+<div class="actions"><button class="primary" onclick="calcTrade()">計算損益</button><button class="secondary" onclick="resetTrade()">重設</button></div>
+<div id="tradeResult" class="result" aria-live="polite">輸入價格與股數後，按「計算損益」。</div>
+</div>
+</section>
+
+<section class="panel" id="average">
+<div class="card"><h2>分批買進／平均持股成本</h2>
+<p class="hint">每一列輸入一筆買進價格與股數；會把買進手續費納入總成本。</p>
+<div id="lots"></div>
+<div class="actions"><button class="secondary" onclick="addLot()">＋新增一筆</button><button class="primary" onclick="calcAverage()">計算平均成本</button></div>
+<div id="avgResult" class="result" aria-live="polite">新增或修改買進批次後計算。</div>
+</div>
+</section>
+
+<section class="panel" id="dividend">
+<div class="card"><h2>股利收入計算</h2>
+<div class="grid">
+<div class="field"><label>持有股數（股）</label><input id="divShares" type="number" min="0" value="1000"></div>
+<div class="field"><label>每股現金股利（元）</label><input id="cashDiv" type="number" min="0" step="0.01" value="2"></div>
+<div class="field"><label>每股股票股利（元）</label><input id="stockDiv" type="number" min="0" step="0.01" value="0"></div>
+</div>
+<div class="actions"><button class="primary" onclick="calcDividend()">計算股利</button></div>
+<div id="divResult" class="result" aria-live="polite">輸入股數與公告股利後計算。</div>
+<small class="hint">股票股利以每股面額 10 元換算配股股數；未估算稅費、零股處理或實際入帳差異。</small>
+</div>
+</section>
+
+<section class="panel" id="target">
+<div class="card"><h2>停利／停損價格試算</h2>
+<div class="grid">
+<div class="field"><label>持股平均成本（元／股）</label><input id="targetCost" type="number" min="0.01" step="0.01" value="100"></div>
+<div class="field"><label>股數（股）</label><input id="targetShares" type="number" min="1" value="1000"></div>
+<div class="field"><label>目標報酬率（%）</label><input id="targetReturn" type="number" step="0.1" value="10"></div>
+<div class="field"><label>交易類型</label><select id="targetType"><option value="stock">一般股票</option><option value="day">現股當沖（股票）</option><option value="etf">ETF</option></select></div>
+</div>
+<div class="actions"><button class="primary" onclick="calcTarget()">計算目標賣價</button></div>
+<div id="targetResult" class="result" aria-live="polite">正報酬率代表停利目標，負報酬率代表停損目標。</div>
+<small class="hint">以扣除預估賣出手續費及證交稅後的淨損益反推賣價；未包含買進成本以外的個別費用。</small>
+</div>
+</section>
+
+<section class="panel" id="settings">
+<div class="card"><h2>交易費率設定</h2>
+<div class="grid">
+<div class="field"><label>手續費率（%）</label><input id="feeRate" type="number" min="0" step="0.0001" value="0.1425"></div>
+<div class="field"><label>手續費折扣（%）</label><input id="discount" type="number" min="0" max="100" step="1" value="100"></div>
+<div class="field"><label>一般股票證交稅（%）</label><input id="stockTax" type="number" min="0" step="0.01" value="0.3"></div>
+<div class="field"><label>現股當沖股票證交稅（%）</label><input id="dayTax" type="number" min="0" step="0.01" value="0.15"></div>
+<div class="field"><label>ETF 證交稅（%）</label><input id="etfTax" type="number" min="0" step="0.01" value="0.1"></div>
+</div>
+<small class="hint">預設值僅供試算。請依券商實際手續費折扣、最低收費、商品類型與最新法規調整。此頁不會連線券商或下單。</small>
+</div>
+</section>
+<footer>提醒：本工具為教育與估算用途，計算結果可能因券商最低手續費、四捨五入規則、ETF／個股稅率、除權息及其他費用而與實際對帳單不同。請以券商成交回報及官方規定為準。資料只在此頁即時計算，不會上傳。</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const num=id=>Number($(id).value)||0;
+const money=n=>new Intl.NumberFormat('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const integer=n=>new Intl.NumberFormat('zh-TW',{maximumFractionDigits:0}).format(n);
+const feeRate=()=>num('feeRate')/100*(num('discount')/100);
+function taxRate(type){return type==='day'?num('dayTax')/100:type==='etf'?num('etfTax')/100:num('stockTax')/100}
+function fee(amount){return amount*feeRate()}
+function show(id,html){$(id).innerHTML=html}
+function calcTrade(){
+ let bp=num('buyPrice'),sp=num('sellPrice'),q=num('shares'),type=$('tradeType').value;
+ if(bp<=0||sp<0||q<=0){show('tradeResult','請輸入有效的買進價、賣出價與股數。');return}
+ let buy=bp*q,sell=sp*q,bf=fee(buy),sf=fee(sell),tax=sell*taxRate(type),cost=buy+bf,net=sell-sf-tax,pnl=net-cost,ret=cost?pnl/cost*100:0;
+ show('tradeResult',`<div class="big ${pnl>=0?'positive':'negative'}">${pnl>=0?'+':''}${money(pnl)} 元</div><div class="rows"><span>買進金額</span><span>${money(buy)} 元</span><span>買進手續費</span><span>${money(bf)} 元</span><span>賣出金額</span><span>${money(sell)} 元</span><span>賣出手續費</span><span>${money(sf)} 元</span><span>證券交易稅</span><span>${money(tax)} 元</span><span>總投入成本</span><span>${money(cost)} 元</span><span>賣出淨收入</span><span>${money(net)} 元</span><span>報酬率</span><span class="${pnl>=0?'positive':'negative'}">${ret.toFixed(2)}%</span></div>`);
+}
+function resetTrade(){['buyPrice','sellPrice','shares'].forEach((x,i)=>$(x).value=[100,110,1000][i]);$('tradeType').value='stock';calcTrade()}
+let lotCount=0;
+function addLot(price='',shares=''){let id=++lotCount,d=document.createElement('div');d.className='lot';d.innerHTML=`<input type="number" min="0.01" step="0.01" placeholder="買進價" aria-label="第${id}筆買進價格" value="${price}"><input type="number" min="1" step="1" placeholder="股數" aria-label="第${id}筆買進股數" value="${shares}"><button type="button" aria-label="刪除第${id}筆" onclick="this.parentElement.remove()">刪除</button>`;$('lots').appendChild(d)}
+function calcAverage(){
+ let rows=[...$('lots').children],totalQ=0,totalGross=0,totalFee=0;
+ for(let r of rows){let p=Number(r.children[0].value)||0,q=Number(r.children[1].value)||0;if(p>0&&q>0){totalQ+=q;totalGross+=p*q;totalFee+=fee(p*q)}}
+ if(!totalQ){show('avgResult','請至少輸入一筆有效的買進價格與股數。');return}
+ let total=totalGross+totalFee,avg=total/totalQ;
+ show('avgResult',`<div class="big">${money(avg)} 元／股</div><div class="rows"><span>累計股數</span><span>${integer(totalQ)} 股</span><span>買進總金額</span><span>${money(totalGross)} 元</span><span>預估買進手續費</span><span>${money(totalFee)} 元</span><span>含手續費總成本</span><span>${money(total)} 元</span></div>`)
+}
+function calcDividend(){let q=num('divShares'),cash=num('cashDiv'),stock=num('stockDiv');if(q<0||cash<0||stock<0){show('divResult','請輸入非負數值。');return}let cashTotal=q*cash,stockShares=q*stock/10;show('divResult',`<div class="big">${money(cashTotal)} 元</div><div class="rows"><span>預估現金股利</span><span>${money(cashTotal)} 元</span><span>預估股票股利</span><span>${money(stockShares)} 股</span><span>配息後股數（估算）</span><span>${integer(q+stockShares)} 股</span></div>`)}
+function calcTarget(){
+ let cost=num('targetCost'),q=num('targetShares'),r=num('targetReturn')/100,type=$('targetType').value;
+ if(cost<=0||q<=0||r<=-1){show('targetResult','請確認成本、股數與報酬率；報酬率需大於 -100%。');return}
+ let invested=cost*q,goal=invested*(1+r),tax=taxRate(type),f=feeRate();
+ // Solve sellPrice*q*(1-f-tax) = target net proceeds
+ let price=goal/(q*(1-f-tax));
+ let proceeds=price*q,net=proceeds-fee(proceeds)-proceeds*tax,pnl=net-invested;
+ show('targetResult',`<div class="big">${money(price)} 元／股</div><div class="rows"><span>目標淨收入</span><span>${money(goal)} 元</span><span>預估賣出手續費</span><span>${money(fee(proceeds))} 元</span><span>預估證交稅</span><span>${money(proceeds*tax)} 元</span><span>預估淨損益</span><span class="${pnl>=0?'positive':'negative'}">${pnl>=0?'+':''}${money(pnl)} 元</span><span>設定報酬率</span><span>${(r*100).toFixed(2)}%</span></div>`)
+}
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===b.dataset.tab))}));
+addLot(100,1000);addLot(95,1000);
+calcTrade();
+</script>
+</body></html>
